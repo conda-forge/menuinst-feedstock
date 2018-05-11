@@ -14,7 +14,7 @@ build:
   number: 0
   skip: true  # [not win]
   script:
-    - python setup.py install
+    - python -m pip install --no-deps --ignore-installed .
     - copy "%SRC_DIR%\\cwp.py" "%PREFIX%\\"
   entry_points:
     - menuinst = menuinst.main:main
