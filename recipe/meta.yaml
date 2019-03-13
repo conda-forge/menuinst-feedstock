@@ -1,5 +1,5 @@
-{% set version = "1.4.14" %}
-{% set sha256 = "c52582f1bbcbb27976cc8c7c50baac41a50747d599178e8e3b8bca10edd0c7e2" %}
+{% set version = "1.4.15" %}
+{% set sha256 = "205ebe8301ac8e259ade14c755043049c39dbdb3daab71ee71ae9cc2f0b9fc7e" %}
 
 package:
   name: menuinst
@@ -11,7 +11,7 @@ source:
   sha256: {{ sha256 }}
 
 build:
-  number: 1000
+  number: 0
   skip: true  # [not win]
   script:
     - python -m pip install --no-deps --ignore-installed .
