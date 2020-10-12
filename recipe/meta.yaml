@@ -11,7 +11,7 @@ source:
   sha256: {{ sha256 }}
 
 build:
-  number: 0
+  number: 1
   skip: true  # [not win]
   script:
     - "{{ PYTHON }} -m pip install . --no-deps -vv"
@@ -38,8 +38,7 @@ test:
 
 about:
   home: https://github.com/ContinuumIO/menuinst
-  license: BSD 3-Clause
-  license_family: BSD
+  license: BSD-3-Clause
   license_file: LICENSE.txt
   summary: "cross platform install of menu items"
 
