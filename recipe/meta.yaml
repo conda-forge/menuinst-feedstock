@@ -13,9 +13,6 @@ source:
 build:
   number: 1
   skip: true  # [not win]
-  script:
-    - "{{ PYTHON }} -m pip install . --no-deps -vv"
-    - copy "%SRC_DIR%\\cwp.py" "%PREFIX%\\"
   entry_points:
     - menuinst = menuinst.main:main
   skip_compile_pyc:
@@ -30,8 +27,12 @@ requirements:
     - pywin32
 
 test:
+  commands:
+    - menuinst -h
+    - menuinst --version
   imports:
     - menuinst
+    - menuinst.winshortcut
 
   commands:
     - menuinst --help
@@ -40,10 +41,13 @@ about:
   home: https://github.com/ContinuumIO/menuinst
   license: BSD-3-Clause
   license_file: LICENSE.txt
-  summary: "cross platform install of menu items"
-
-  dev_url: https://github.com/ContinuumIO/menuinst
+  summary: cross platform menu item installation
+  description: |
+    This application is used by Conda to create shortcuts on a wide variety of
+    systems.
   doc_url: https://github.com/ContinuumIO/menuinst/wiki
+  doc_source_url: https://github.com/ContinuumIO/menuinst
+  dev_url: https://github.com/ContinuumIO/menuinst
 
 extra:
   recipe-maintainers:
