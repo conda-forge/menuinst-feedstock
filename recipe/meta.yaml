@@ -1,5 +1,5 @@
-{% set version = "1.4.16" %}
-{% set sha256 = "c9ad6e225c2831656bac35b71ac1c8c3f82f08ba8da9718dfb3708485bbccc44" %}
+{% set version = "1.4.17" %}
+{% set sha256 = "143bc78efbbe9e34698df3d40f20576ccd9b62a199ebfff83cc5515049f70090" %}
 
 package:
   name: menuinst
@@ -11,10 +11,10 @@ source:
   sha256: {{ sha256 }}
 
 build:
-  number: 1
+  number: 0
   skip: true  # [not win]
   script:
-    - "{{ PYTHON }} -m pip install . --no-deps -vv"
+    - {{ PYTHON }} -m pip install . --no-deps -vv
     - copy "%SRC_DIR%\\cwp.py" "%PREFIX%\\"
   entry_points:
     - menuinst = menuinst.main:main
@@ -22,7 +22,7 @@ build:
     - cwp.py
 
 requirements:
-  build:
+  host:
     - python
     - pip
   run:
@@ -40,7 +40,7 @@ about:
   home: https://github.com/ContinuumIO/menuinst
   license: BSD-3-Clause
   license_file: LICENSE.txt
-  summary: "cross platform install of menu items"
+  summary: cross platform install of menu items
 
   dev_url: https://github.com/ContinuumIO/menuinst
   doc_url: https://github.com/ContinuumIO/menuinst/wiki
