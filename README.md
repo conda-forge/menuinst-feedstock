@@ -1,7 +1,7 @@
 About menuinst
 ==============
 
-Home: https://github.com/ContinuumIO/menuinst
+Home: https://github.com/conda/menuinst
 
 Package license: BSD-3-Clause
 
@@ -9,9 +9,9 @@ Feedstock license: [BSD-3-Clause](https://github.com/conda-forge/menuinst-feedst
 
 Summary: cross platform install of menu items
 
-Development: https://github.com/ContinuumIO/menuinst
+Development: https://github.com/conda/menuinst
 
-Documentation: https://github.com/ContinuumIO/menuinst/wiki
+Documentation: https://github.com/conda/menuinst/wiki
 
 Current build status
 ====================

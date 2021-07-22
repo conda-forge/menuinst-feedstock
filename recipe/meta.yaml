@@ -6,11 +6,11 @@ package:
 
 source:
   fn: menuinst-{{ version }}.tar.gz
-  url: https://github.com/ContinuumIO/menuinst/archive/{{ version }}.tar.gz
+  url: https://github.com/conda/menuinst/archive/{{ version }}.tar.gz
   sha256: 143bc78efbbe9e34698df3d40f20576ccd9b62a199ebfff83cc5515049f70090
 
 build:
-  number: 0
+  number: 1
   skip: true  # [not win]
   script:
     - {{ PYTHON }} -m pip install . -vv
@@ -41,8 +41,8 @@ about:
   license_file: LICENSE.txt
   summary: cross platform install of menu items
 
-  dev_url: https://github.com/ContinuumIO/menuinst
-  doc_url: https://github.com/ContinuumIO/menuinst/wiki
+  dev_url: https://github.com/conda/menuinst
+  doc_url: https://github.com/conda/menuinst/wiki
 
 extra:
   recipe-maintainers:
