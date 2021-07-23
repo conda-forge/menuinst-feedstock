@@ -44,7 +44,7 @@ test:
     - menuinst --help
 
 about:
-  home: https://github.com/ContinuumIO/menuinst
+  home: https://github.com/conda/menuinst
   license: BSD-3-Clause
   license_family: BSD
   license_file: LICENSE.txt
