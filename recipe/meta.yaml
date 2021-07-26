@@ -1,5 +1,5 @@
-{% set version = "1.4.16" %}
-{% set sha256 = "c9ad6e225c2831656bac35b71ac1c8c3f82f08ba8da9718dfb3708485bbccc44" %}
+{% set version = "1.4.17" %}
+{% set sha256 = "143bc78efbbe9e34698df3d40f20576ccd9b62a199ebfff83cc5515049f70090" %}
 
 package:
   name: menuinst
@@ -7,12 +7,15 @@ package:
 
 source:
   fn: menuinst-{{ version }}.tar.gz
-  url: https://github.com/ContinuumIO/menuinst/archive/{{ version }}.tar.gz
+  url: https://github.com/conda/menuinst/archive/{{ version }}.tar.gz
   sha256: {{ sha256 }}
 
 build:
-  number: 1
-  skip: true  # [not win]
+  number: 0
+  skip: True  # [not win]
+  script:
+    - {{ PYTHON }} -m pip install . -vv
+    - copy "%SRC_DIR%\\cwp.py" "%PREFIX%\\"
   entry_points:
     - menuinst = menuinst.main:main
   skip_compile_pyc:
@@ -20,34 +23,37 @@ build:
 
 requirements:
   build:
+    - {{ compiler('cxx') }}
+    - m2-patch  # [win]
+  host:
     - python
     - pip
+    - setuptools
+    - wheel
   run:
     - python
     - pywin32
 
 test:
-  commands:
-    - menuinst -h
-    - menuinst --version
   imports:
     - menuinst
-    - menuinst.winshortcut
-
+  requires:
+    - pip
   commands:
+    - pip check
     - menuinst --help
 
 about:
-  home: https://github.com/ContinuumIO/menuinst
+  home: https://github.com/conda/menuinst
   license: BSD-3-Clause
+  license_family: BSD
   license_file: LICENSE.txt
-  summary: cross platform menu item installation
+  summary: cross platform install of menu items
   description: |
     This application is used by Conda to create shortcuts on a wide variety of
     systems.
-  doc_url: https://github.com/ContinuumIO/menuinst/wiki
-  doc_source_url: https://github.com/ContinuumIO/menuinst
-  dev_url: https://github.com/ContinuumIO/menuinst
+  dev_url: https://github.com/conda/menuinst
+  doc_url: https://github.com/conda/menuinst/wiki
 
 extra:
   recipe-maintainers:
