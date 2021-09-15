@@ -1,7 +1,7 @@
 About menuinst
 ==============
 
-Home: https://github.com/conda/menuinst
+Home: https://github.com/conda/menuinst/
 
 Package license: BSD-3-Clause
 
