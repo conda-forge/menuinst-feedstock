@@ -8,9 +8,11 @@ source:
   fn: menuinst-{{ version }}.tar.gz
   url: https://github.com/conda/menuinst/archive/{{ version }}.tar.gz
   sha256: f64adf261c8c0edfe5eaf929a57dce8c53b3bd043bc6ad41c85a708cd64a3363
+  patches:
+    - gh103.patch  # [python_impl != 'cpython']
 
 build:
-  number: 1
+  number: 2
   skip: true  # [not win]
   script:
     - {{ PYTHON }} -m pip install . -vv
@@ -26,7 +28,7 @@ requirements:
     - pip
   run:
     - python
-    - pywin32
+    - pywin32  # [python_impl == 'cpython']
 
 test:
   imports:
@@ -49,3 +51,4 @@ extra:
     - goanpeca
     - jakirkham
     - carlodri
+    - isuruf
