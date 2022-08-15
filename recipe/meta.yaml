@@ -7,7 +7,7 @@ package:
 source:
   fn: menuinst-{{ version }}.tar.gz
   url: https://github.com/conda/menuinst/archive/{{ version }}.tar.gz
-  sha256: f64adf261c8c0edfe5eaf929a57dce8c53b3bd043bc6ad41c85a708cd64a3363
+  sha256: 5518c15f4c31d6e7c305140274a7024a4518c417f5a7d66e26f291e740b0f089
   patches:
     - gh103.patch  # [python_impl != 'cpython']
 
