@@ -10,6 +10,7 @@ source:
   sha256: 5518c15f4c31d6e7c305140274a7024a4518c417f5a7d66e26f291e740b0f089
   patches:
     - gh103.patch  # [python_impl != 'cpython']
+    - gh105.patch  # [python_impl != 'cpython']
 
 build:
   number: 2
