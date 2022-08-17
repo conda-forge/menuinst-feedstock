@@ -1,4 +1,4 @@
-{% set version = "1.4.18" %}
+{% set version = "1.4.19" %}
 
 package:
   name: menuinst
@@ -7,10 +7,10 @@ package:
 source:
   fn: menuinst-{{ version }}.tar.gz
   url: https://github.com/conda/menuinst/archive/{{ version }}.tar.gz
-  sha256: f64adf261c8c0edfe5eaf929a57dce8c53b3bd043bc6ad41c85a708cd64a3363
+  sha256: e8f28fabc0efb7880b5e9a500683fc02d38886bc9e61ea1a19c55434907a3f0a
 
 build:
-  number: 1
+  number: 0
   skip: true  # [not win]
   script:
     - {{ PYTHON }} -m pip install . -vv
@@ -26,7 +26,6 @@ requirements:
     - pip
   run:
     - python
-    - pywin32
 
 test:
   imports:
@@ -49,3 +48,4 @@ extra:
     - goanpeca
     - jakirkham
     - carlodri
+    - isuruf
