@@ -1,5 +1,5 @@
-{% set version = "1.4.17" %}
-{% set sha256 = "143bc78efbbe9e34698df3d40f20576ccd9b62a199ebfff83cc5515049f70090" %}
+{% set version = "1.4.19" %}
+{% set sha256 = "e8f28fabc0efb7880b5e9a500683fc02d38886bc9e61ea1a19c55434907a3f0a" %}
 
 package:
   name: menuinst
