@@ -24,7 +24,6 @@ build:
 requirements:
   build:
     - {{ compiler('cxx') }}
-    - m2-patch  # [win]
   host:
     - python
     - pip
