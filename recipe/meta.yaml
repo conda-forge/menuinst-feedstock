@@ -1,5 +1,5 @@
-{% set version = "1.4.18" %}
-{% set sha256 = "f64adf261c8c0edfe5eaf929a57dce8c53b3bd043bc6ad41c85a708cd64a3363" %}
+{% set version = "1.4.19" %}
+{% set sha256 = "e8f28fabc0efb7880b5e9a500683fc02d38886bc9e61ea1a19c55434907a3f0a" %}
 
 package:
   name: menuinst
@@ -24,7 +24,6 @@ build:
 requirements:
   build:
     - {{ compiler('cxx') }}
-    - m2-patch  # [win]
   host:
     - python
     - pip
@@ -32,7 +31,6 @@ requirements:
     - wheel
   run:
     - python
-    - pywin32
 
 test:
   imports:
