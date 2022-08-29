@@ -32,7 +32,6 @@ requirements:
     - wheel
   run:
     - python
-    - pywin32
 
 test:
   imports:
