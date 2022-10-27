@@ -5,12 +5,11 @@ package:
   version: {{ version }}
 
 source:
-  fn: menuinst-{{ version }}.tar.gz
   url: https://github.com/conda/menuinst/archive/{{ version }}.tar.gz
-  sha256: e8f28fabc0efb7880b5e9a500683fc02d38886bc9e61ea1a19c55434907a3f0a
+  sha256: f93ef4bc4e627868b7bba62ef8cb675e84d5bbe69a85a03a7559e1979f3924ec
 
 build:
-  number: 0
+  number: 1
   skip: true  # [not win]
   script:
     - {{ PYTHON }} -m pip install . -vv
