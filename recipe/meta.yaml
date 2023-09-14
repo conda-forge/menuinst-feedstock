@@ -40,18 +40,17 @@ test:
   requires:
     - conda
     - pytest
-    - pytest-cov
     - pydantic <2.0a0
-    - hypothesis
-    - hypothesis-jsonschema
   source_files:
     - tests
   imports:
     - menuinst
+    - menuinst.api
+    - menuinst._legacy  # [win]
   commands:
     - unset CI  # [unix]
     - set "CI="  # [win]
-    - pytest --no-cov -vv -k "not elevation"
+    - pytest -vv -k "not elevation"
 
 about:
   home: https://github.com/conda/menuinst/
