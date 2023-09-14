@@ -44,6 +44,11 @@ test:
     - menuinst.api
     - menuinst._legacy  # [win]
     - menuinst.platforms.win_utils.winshortcut  # [win]
+  commands:
+    - test -f {{ SP_DIR }}/menuinst/data/appkit_launcher_arm64  # [osx]
+    - test -f {{ SP_DIR }}/menuinst/data/appkit_launcher_x86_64  # [osx]
+    - test -f {{ SP_DIR }}/menuinst/data/osx_launcher_arm64  # [osx]
+    - test -f {{ SP_DIR }}/menuinst/data/osx_launcher_x86_64  # [osx]
 #  requires:
 #    - conda
 #    - pytest
