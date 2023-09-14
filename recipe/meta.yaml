@@ -45,11 +45,11 @@ test:
     - menuinst._legacy  # [win]
     - menuinst.platforms.win_utils.winshortcut  # [win]
   commands:
-    - set pyver=$(python -c "import sys; print('.'.join(map(str, sys.version_info[:2])))")  # [osx]
-    - test -f "${CONDA_PREFIX}/lib/python${pyver}/menuinst/data/appkit_launcher_arm64       # [osx]
-    - test -f "${CONDA_PREFIX}/lib/python${pyver}/menuinst/data/appkit_launcher_x86_64      # [osx]
-    - test -f "${CONDA_PREFIX}/lib/python${pyver}/menuinst/data/osx_launcher_arm64          # [osx]
-    - test -f "${CONDA_PREFIX}/lib/python${pyver}/menuinst/data/osx_launcher_x86_64         # [osx]
+    - pyver=$(python -c "import sys; print('.'.join(map(str, sys.version_info[:2])))")  # [osx]
+    - test -f "${CONDA_PREFIX}/lib/python${pyver}/menuinst/data/appkit_launcher_arm64   # [osx]
+    - test -f "${CONDA_PREFIX}/lib/python${pyver}/menuinst/data/appkit_launcher_x86_64  # [osx]
+    - test -f "${CONDA_PREFIX}/lib/python${pyver}/menuinst/data/osx_launcher_arm64      # [osx]
+    - test -f "${CONDA_PREFIX}/lib/python${pyver}/menuinst/data/osx_launcher_x86_64     # [osx]
 
 about:
   home: https://github.com/conda/menuinst/
