@@ -20,7 +20,8 @@ build:
     - {{ PYTHON }} -m pip install . -vv
     # menuinst v1 expects cwp.py in PREFIX; backwards compat fix
     - copy "%SP_DIR%\\menuinst\\_legacy\cwp.py" "%PREFIX%\\"  # [win]
-
+  skip_compile_pyc:  # [win]
+    - cwp.py  # [win]
   # entry_points:
   #   - menuinst = menuinst.main:main
 
