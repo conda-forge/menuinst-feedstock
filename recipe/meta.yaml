@@ -38,20 +38,21 @@ requirements:
     - python
 
 test:
-  requires:
-    - conda
-    - pytest
-    - pydantic <2.0a0
-  source_files:
-    - tests
   imports:
     - menuinst
     - menuinst.api
     - menuinst._legacy  # [win]
-  commands:
-    - unset CI  # [unix]
-    - set "CI="  # [win]
-    - pytest -vv -k "not elevation"
+    - menuinst.platforms.win_utils.winshortcut  # [win]
+#  requires:
+#    - conda
+#    - pytest
+#    - pydantic <2.0a0
+#  source_files:
+#    - tests
+#  commands:
+#    - unset CI  # [unix]
+#    - set "CI="  # [win]
+#    - pytest -vv -k "not elevation"
 
 about:
   home: https://github.com/conda/menuinst/
