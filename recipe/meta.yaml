@@ -48,8 +48,7 @@ test:
     - menuinst._legacy  # [win]
     - menuinst.platforms.win_utils.winshortcut  # [win]
   commands:
-    - pyver=$(python -c "import sys; print('.'.join(map(str, sys.version_info[:2])))")  # [osx]
-    - SP_DIR="${CONDA_PREFIX}/lib/python${pyver}/site-packages"  # [osx]
+    - SP_DIR="$(python -c 'import site; print(site.getsitepackages()[0])')"
     - test -f "${SP_DIR}/menuinst/data/appkit_launcher_arm64     # [osx]
     - test -f "${SP_DIR}/menuinst/data/appkit_launcher_x86_64"   # [osx]
     - test -f "${SP_DIR}/menuinst/data/osx_launcher_arm64"       # [osx]
