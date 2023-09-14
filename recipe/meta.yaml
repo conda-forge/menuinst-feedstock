@@ -17,6 +17,9 @@ build:
     # and we should not need them on Windows
     - del /q "{{ SRC_DIR }}\\menuinst\\data\\osx_launcher_*"  # [win]
     - del /q "{{ SRC_DIR }}\\menuinst\\data\\appkit_launcher_*"  # [win]
+    # Delete in Linux too because we don't need them there
+    - rm -f "{{ SRC_DIR }}/menuinst/data/osx_launcher_*"     # [linux]
+    - rm -f "{{ SRC_DIR }}/menuinst/data/appkit_launcher_*"  # [linux]
     - {{ PYTHON }} -m pip install . -vv
     # menuinst v1 expects cwp.py in PREFIX; backwards compat fix
     - copy "%SP_DIR%\\menuinst\\_legacy\cwp.py" "%PREFIX%\\"  # [win]
@@ -46,10 +49,11 @@ test:
     - menuinst.platforms.win_utils.winshortcut  # [win]
   commands:
     - pyver=$(python -c "import sys; print('.'.join(map(str, sys.version_info[:2])))")  # [osx]
-    - test -f "${CONDA_PREFIX}/lib/python${pyver}/menuinst/data/appkit_launcher_arm64   # [osx]
-    - test -f "${CONDA_PREFIX}/lib/python${pyver}/menuinst/data/appkit_launcher_x86_64  # [osx]
-    - test -f "${CONDA_PREFIX}/lib/python${pyver}/menuinst/data/osx_launcher_arm64      # [osx]
-    - test -f "${CONDA_PREFIX}/lib/python${pyver}/menuinst/data/osx_launcher_x86_64     # [osx]
+    - SP_DIR="${CONDA_PREFIX}/lib/python${pyver}/site-packages"  # [osx]
+    - test -f "${SP_DIR}/menuinst/data/appkit_launcher_arm64     # [osx]
+    - test -f "${SP_DIR}/menuinst/data/appkit_launcher_x86_64"   # [osx]
+    - test -f "${SP_DIR}/menuinst/data/osx_launcher_arm64"       # [osx]
+    - test -f "${SP_DIR}/menuinst/data/osx_launcher_x86_64"      # [osx]
 
 about:
   home: https://github.com/conda/menuinst/
