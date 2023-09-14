@@ -62,15 +62,6 @@ about:
   summary: cross platform install of menu items
   doc_url: https://conda.github.io/menuinst/
 
-about:
-  home: https://github.com/conda/menuinst/
-  license: BSD-3-Clause
-  license_file: LICENSE.txt
-  summary: cross platform install of menu items
-
-  dev_url: https://github.com/conda/menuinst
-  doc_url: https://github.com/conda/menuinst/wiki
-
 extra:
   recipe-maintainers:
     - goanpeca
