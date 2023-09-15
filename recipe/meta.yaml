@@ -15,7 +15,7 @@ build:
   script:
     # Apparently these files make the post-build linkage analysis crash
     # and we should not need them on Windows
-    - del /q "{{ SRC_DIR }}\\menuinst\\data\\osx_launcher_*"  # [win]
+    - del /q "{{ SRC_DIR }}\\menuinst\\data\\osx_launcher_*"     # [win]
     - del /q "{{ SRC_DIR }}\\menuinst\\data\\appkit_launcher_*"  # [win]
     # Delete in Linux too because we don't need them there
     - rm -f "{{ SRC_DIR }}/menuinst/data/osx_launcher_*"     # [linux]
@@ -48,7 +48,10 @@ test:
     - menuinst._legacy  # [win]
     - menuinst.platforms.win_utils.winshortcut  # [win]
   commands:
-    - SP_DIR="$(python -c 'import site; print(site.getsitepackages()[0])')"
+    - SP_DIR="$(python -c 'import site; print(site.getsitepackages()[0])')"  # [osx]
+    - ls "${SP_DIR}/     # [osx]
+    - ls "${SP_DIR}/menuinst/     # [osx]
+    - ls "${SP_DIR}/menuinst/data/     # [osx]
     - test -f "${SP_DIR}/menuinst/data/appkit_launcher_arm64     # [osx]
     - test -f "${SP_DIR}/menuinst/data/appkit_launcher_x86_64"   # [osx]
     - test -f "${SP_DIR}/menuinst/data/osx_launcher_arm64"       # [osx]
