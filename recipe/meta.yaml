@@ -1,5 +1,4 @@
-{% set version = "1.4.19" %}
-{% set sha256 = "f93ef4bc4e627868b7bba62ef8cb675e84d5bbe69a85a03a7559e1979f3924ec" %}
+{% set version = "2.0.0" %}
 
 package:
   name: menuinst
@@ -8,53 +7,67 @@ package:
 source:
   fn: menuinst-{{ version }}.tar.gz
   url: https://github.com/conda/menuinst/archive/{{ version }}.tar.gz
-  sha256: {{ sha256 }}
+  sha256: 0ca844379c0d904cc1879f574c4d4320e89290e63e2f61e2996aebdd579d539e
 
 build:
-  number: 1
-  skip: True  # [not win]
+  number: 0
+  script_env:
+    - SETUPTOOLS_SCM_PRETEND_VERSION={{ version }}
   script:
+    # Apparently these files make the post-build linkage analysis crash
+    # and we should not need them on Windows
+    - del /q "{{ SRC_DIR }}\\menuinst\\data\\osx_launcher_*"     # [win]
+    - del /q "{{ SRC_DIR }}\\menuinst\\data\\appkit_launcher_*"  # [win]
+    # Delete in Linux too because we don't need them there
+    - rm -f "{{ SRC_DIR }}/menuinst/data/osx_launcher_*"     # [linux]
+    - rm -f "{{ SRC_DIR }}/menuinst/data/appkit_launcher_*"  # [linux]
     - {{ PYTHON }} -m pip install . -vv
-    - copy "%SRC_DIR%\\cwp.py" "%PREFIX%\\"
-  entry_points:
-    - menuinst = menuinst.main:main
-  skip_compile_pyc:
-    - cwp.py
+    # menuinst v1 expects cwp.py in PREFIX; backwards compat fix
+    - copy "%SP_DIR%\\menuinst\\_legacy\cwp.py" "%PREFIX%\\"  # [win]
+  skip_compile_pyc:  # [win]
+    - cwp.py  # [win]
+  # entry_points:
+  #   - menuinst = menuinst.main:main
 
 requirements:
   build:
-    - {{ compiler('cxx') }}
+    - python                                 # [build_platform != target_platform]
+    - cross-python_{{ target_platform }}     # [build_platform != target_platform]
+    - {{ compiler('c') }}  # [win]
+    - {{ compiler('cxx') }}  # [win]
   host:
     - python
     - pip
-    - setuptools
-    - wheel
+    - setuptools_scm
   run:
     - python
 
 test:
   imports:
     - menuinst
-  requires:
-    - pip
+    - menuinst.api
+    - menuinst._legacy  # [win]
+    - menuinst.platforms.win_utils.winshortcut  # [win]
   commands:
-    - pip check
-    - menuinst --help
+    - SP_DIR="$(python -c 'import site; print(site.getsitepackages()[0])')"  # [osx]
+    - test -f "${SP_DIR}/menuinst/data/appkit_launcher_arm64"    # [osx]
+    - test -f "${SP_DIR}/menuinst/data/appkit_launcher_x86_64"   # [osx]
+    - test -f "${SP_DIR}/menuinst/data/osx_launcher_arm64"       # [osx]
+    - test -f "${SP_DIR}/menuinst/data/osx_launcher_x86_64"      # [osx]
 
 about:
-  home: https://github.com/conda/menuinst
-  license: BSD-3-Clause
-  license_family: BSD
-  license_file: LICENSE.txt
+  home: https://github.com/conda/menuinst/
+  license: BSD-3-Clause AND MIT
+  license_file:
+    - LICENSE.txt
+    - menuinst/_vendor/apipkg/LICENSE
   summary: cross platform install of menu items
-  description: |
-    This application is used by Conda to create shortcuts on a wide variety of
-    systems.
-  dev_url: https://github.com/conda/menuinst
-  doc_url: https://github.com/conda/menuinst/wiki
+  doc_url: https://conda.github.io/menuinst/
 
 extra:
   recipe-maintainers:
     - goanpeca
     - jakirkham
     - carlodri
+    - isuruf
+    - jaimergp
