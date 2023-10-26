@@ -9,6 +9,7 @@ source:
   sha256: f93ef4bc4e627868b7bba62ef8cb675e84d5bbe69a85a03a7559e1979f3924ec
   patches:
     - 0001-Use-ConfigParser-in-versioneer.patch
+    - 0002-Use-PyObject-in-winshortcut-cpp.patch
 
 build:
   number: 2
