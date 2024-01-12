@@ -1,4 +1,4 @@
-{% set version = "2.0.1" %}
+{% set version = "2.0.2" %}
 
 package:
   name: menuinst
@@ -6,7 +6,7 @@ package:
 
 source:
   url: https://github.com/conda/menuinst/archive/{{ version }}.tar.gz
-  sha256: 1ccd540ae5d3c348eef3761529a392184057fe9f21ea2dddb09a04b7ad9e9398
+  sha256: 2846d3435b13375fe9242a985f355c176ace7a31072c230bdd5b0bfd13367701
 
 build:
   number: 0
@@ -23,7 +23,7 @@ build:
     - {{ PYTHON }} -m pip install . -vv
     # menuinst v1 expects cwp.py in PREFIX; backwards compat fix
     - copy "%SP_DIR%\\menuinst\\_legacy\cwp.py" "%PREFIX%\\"  # [win]
-  skip_compile_pyc:  # [win]
+  skip_compile_pyc:   # [win]
     - cwp.py  # [win]
   # entry_points:
   #   - menuinst = menuinst.main:main
