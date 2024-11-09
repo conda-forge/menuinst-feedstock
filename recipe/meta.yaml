@@ -1,4 +1,4 @@
-{% set version = "2.1.2" %}
+{% set version = "2.2.0" %}
 
 package:
   name: menuinst
@@ -6,10 +6,10 @@ package:
 
 source:
   url: https://github.com/conda/menuinst/archive/{{ version }}.tar.gz
-  sha256: 6515a4e33cec8462cdb389c1c301ddbe0679c992c02e3ea42eea25225063b0e9
+  sha256: c225bacefa9ee216e678d929d375e34f10856d87c1aba70a57c3d7974fda0cb7
 
 build:
-  number: 1
+  number: 0
   script_env:
     - SETUPTOOLS_SCM_PRETEND_VERSION={{ version }}
   script:
