@@ -7,9 +7,15 @@ package:
 source:
   url: https://github.com/conda/menuinst/archive/{{ version }}.tar.gz
   sha256: c225bacefa9ee216e678d929d375e34f10856d87c1aba70a57c3d7974fda0cb7
+  patches:
+    # https://github.com/conda/menuinst/pull/333
+    - 333.patch
+    # https://github.com/conda/menuinst/pull/334
+    - 334.patch
 
 build:
-  number: 0
+  number: 100
+  skip: true  # [not linux64]
   script_env:
     - SETUPTOOLS_SCM_PRETEND_VERSION={{ version }}
   script:
