@@ -1,0 +1,51 @@
+From e8a36bc88945e36dd02fdc658ef36f942d70a86f Mon Sep 17 00:00:00 2001
+From: Mark Harfouche <mark.harfouche@gmail.com>
+Date: Sat, 17 May 2025 17:01:34 -0400
+Subject: [PATCH] Also expand parameters in lists of strings
+
+Previously if one had a list of strings, expressions such as
+{{ PREFIX }} or {{ ENV_NAME }} would not get expanded
+
+- [ ] Add a test
+---
+ menuinst/platforms/base.py | 23 ++++++++++++++++-------
+ 1 file changed, 16 insertions(+), 7 deletions(-)
+
+diff --git a/menuinst/platforms/base.py b/menuinst/platforms/base.py
+index f528b9e0..16c0e6e8 100644
+--- a/menuinst/platforms/base.py
++++ b/menuinst/platforms/base.py
+@@ -50,17 +50,26 @@ def remove(self) -> List[Path]:
+         raise NotImplementedError
+ 
+     def render(self, value: Any, slug: bool = False, extra: Dict = None) -> Any:
+-        if not hasattr(value, "replace"):
+-            return value
++        is_list = isinstance(value, list)
++        if not is_list:
++            value = [value]
+         if extra:
+             placeholders = {**self.placeholders, **extra}
+         else:
+             placeholders = self.placeholders
+-        for placeholder, replacement in placeholders.items():
+-            value = value.replace("{{ " + placeholder + " }}", replacement)
+-        if slug:
+-            value = slugify(value)
+-        return value
++
++        final_values = []
++        for v in value:
++            if hasattr(v, "replace"):
++                for placeholder, replacement in placeholders.items():
++                    v = v.replace("{{ " + placeholder + " }}", replacement)
++                if slug:
++                    v = slugify(v)
++            final_values.append(v)
++        if not is_list:
++            return final_values[0]
++        else:
++            return final_values
+ 
+     @property
+     def placeholders(self) -> Dict[str, str]:
