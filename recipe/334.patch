@@ -1,140 +1,8 @@
-From b36bf87a52f9d53256c6493f19f507e2559e1d95 Mon Sep 17 00:00:00 2001
-From: Mark Harfouche <mark.harfouche@gmail.com>
-Date: Sat, 17 May 2025 17:09:56 -0400
-Subject: [PATCH] Expand the ability to specify parameters by is_base or not
-
----
- menuinst/_schema.py         | 43 ++++++++++++++++++++++++++-----------
- menuinst/platforms/linux.py | 27 +++++++++++++++++++++--
- 2 files changed, 56 insertions(+), 14 deletions(-)
-
-diff --git a/menuinst/_schema.py b/menuinst/_schema.py
-index 56bec39b..0e245f40 100644
---- a/menuinst/_schema.py
-+++ b/menuinst/_schema.py
-@@ -62,11 +62,11 @@ def Field(*args, **kwargs):
-     return _Field(*args, **kwargs)
- 
- 
--class MenuItemNameDict(BaseModel):
-+class TargetIsBaseConStr(BaseModel):
-     """
--    Variable menu item name.
--    Use this dictionary if the menu item name depends on installation parameters
--    such as the target environment.
-+    Variable that depends on whether or not the the installation is in the base env.
-+
-+    This can help configure the menu item on if the system is in a base environment.
-     """
- 
-     target_environment_is_base: Optional[constr(min_length=1)] = Field(
-@@ -78,6 +78,21 @@ class MenuItemNameDict(BaseModel):
-         description=("Name when target environment is not the base environment."),
-     )
- 
-+class TargetIsBaseConList(BaseModel):
-+    """
-+    Variable that depends on whether or not the the installation is in the base env.
-+
-+    This can help configure the menu item on if the system is in a base environment.
-+    """
-+
-+    target_environment_is_base: Optional[conlist(str, min_items=1)] = Field(
-+        None,
-+        description=("Name when target environment is the base environment."),
-+    )
-+    target_environment_is_not_base: Optional[conlist(str, min_items=1)] = Field(
-+        None,
-+        description=("Name when target environment is not the base environment."),
-+    )
- 
- class BasePlatformSpecific(BaseModel):
-     """
-@@ -88,12 +103,12 @@ class BasePlatformSpecific(BaseModel):
-     * Default value is always `None`.
-     """
- 
--    name: Optional[Union[constr(min_length=1), MenuItemNameDict]] = Field(
-+    name: Optional[Union[constr(min_length=1), TargetIsBaseConStr]] = Field(
-         None,
-         description=(
-             """
-             The name of the menu item. Can be a dictionary if the name depends on
--            installation parameters. See `MenuItemNameDict` for details.
-+            installation parameters. See `TargetIsBaseConStr` for details.
-             """
-         ),
-     )
-@@ -105,7 +120,7 @@ class BasePlatformSpecific(BaseModel):
-         None,
-         description=("Path to the file representing or containing the icon."),
-     )
--    command: Optional[conlist(str, min_items=1)] = Field(
-+    command: Optional[conlist(str, min_items=1), TargetIsBaseConList] = Field(
-         None,
-         description=(
-             """
-@@ -119,7 +134,7 @@ class BasePlatformSpecific(BaseModel):
-         description=(
-             """
-             Working directory for the running process.
--            Defaults to user directory on each platform.
-+            Defaults to user recipe/owl-mcam_viewer-menu-unix.jsondirectory on each platform.
-             """
-         ),
-     )
-@@ -322,7 +337,7 @@ class Linux(BasePlatformSpecific):
-             """
-         ),
-     )
--    StartupWMClass: Optional[str] = Field(
-+    StartupWMClass: Optional[str, TargetIsBaseConStr] = Field(
-         None,
-         description=(
-             """
-@@ -331,7 +346,7 @@ class Linux(BasePlatformSpecific):
-             """
-         ),
-     )
--    TryExec: Optional[str] = Field(
-+    TryExec: Optional[str, TargetIsBaseConStr] = Field(
-         None,
-         description=(
-             """
-@@ -350,6 +365,10 @@ class Linux(BasePlatformSpecific):
-             """
-         ),
-     )
-+    run_in_bash: Optional[bool] = Field(
-+        True,
-+        description=("Whether to activate the target environment before running `command`."),
-+    )
- 
- 
- class MacOS(BasePlatformSpecific):
-@@ -620,7 +639,7 @@ class Platforms(BaseModel):
- class MenuItem(BaseModel):
-     "Instructions to create a menu item across operating systems."
- 
--    name: Union[constr(min_length=1), MenuItemNameDict] = Field(
-+    name: Union[constr(min_length=1), TargetIsBaseConStr] = Field(
-         ...,
-         description=(
-             """
-@@ -633,7 +652,7 @@ class MenuItem(BaseModel):
-         ...,
-         description=("A longer description of the menu item. Shown on popup messages."),
-     )
--    command: conlist(str, min_items=1) = Field(
-+    command: Union[conlist(str, min_items=1), TargetIsBaseConList] = Field(
-         ...,
-         description=(
-             """
 diff --git a/menuinst/platforms/linux.py b/menuinst/platforms/linux.py
-index 9e0e3b70..312e85b8 100644
+index 9e0e3b7..312e85b 100644
 --- a/menuinst/platforms/linux.py
 +++ b/menuinst/platforms/linux.py
-@@ -219,6 +219,11 @@ def _update_desktop_database(self):
+@@ -219,6 +219,11 @@ class LinuxMenuItem(MenuItem):
      def _command(self) -> str:
          parts = []
          precommand = self.render_key("precommand")
@@ -146,7 +14,7 @@ index 9e0e3b70..312e85b8 100644
          if precommand:
              parts.append(precommand)
          if self.metadata["activate"]:
-@@ -228,8 +233,17 @@ def _command(self) -> str:
+@@ -228,8 +233,17 @@ class LinuxMenuItem(MenuItem):
              else:
                  activate = "shell.bash activate"
              parts.append(f'eval "$("{conda_exe}" {activate} "{self.menu.prefix}")"')
@@ -166,7 +34,7 @@ index 9e0e3b70..312e85b8 100644
  
      def _write_desktop_file(self):
          if self.location.exists():
-@@ -263,6 +277,15 @@ def _write_desktop_file(self):
+@@ -263,6 +277,15 @@ class LinuxMenuItem(MenuItem):
              value = self.render_key(key)
              if value is None:
                  continue

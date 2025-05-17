@@ -15,7 +15,7 @@ source:
 
 build:
   number: 100
-  skip: true  # [not linux]
+  skip: true  # [not linux64]
   script_env:
     - SETUPTOOLS_SCM_PRETEND_VERSION={{ version }}
   script:
