@@ -9,7 +9,7 @@ source:
   sha256: 270e05c145cb417a662a13979f2273df4ccc7adb17a478b302d9e8592aec5a87
 
 build:
-  number: 0
+  number: 1
   skip: true  # [not win]
   script:
     - {{ PYTHON }} -m pip install . -vv
@@ -23,27 +23,27 @@ requirements:
   build:
     - {{ compiler('c') }}  # [win]
     - {{ compiler('cxx') }}  # [win]
+    - {{ stdlib("c") }}  # [win]
   host:
     - python
     - pip
+    - setuptools
   run:
     - python
 
 test:
   imports:
     - menuinst
-
   commands:
     - menuinst --help
 
 about:
-  home: https://github.com/conda/menuinst/
+  home: https://github.com/conda/menuinst
   license: BSD-3-Clause
   license_file: LICENSE.txt
   summary: cross platform install of menu items
-
   dev_url: https://github.com/conda/menuinst
-  doc_url: https://github.com/conda/menuinst/wiki
+  doc_url: https://conda.github.io/menuinst
 
 extra:
   recipe-maintainers:
