@@ -9,7 +9,7 @@ source:
   sha256: b74ee1e7af57d405834de095fa267b4261a0fee83e593cdcaf11e9e7a9921074
 
 build:
-  number: 0
+  number: 1
   script_env:
     - SETUPTOOLS_SCM_PRETEND_VERSION={{ version }}
   script:
@@ -25,8 +25,8 @@ build:
     - copy "%SP_DIR%\\menuinst\\_legacy\cwp.py" "%PREFIX%\\"  # [win]
   skip_compile_pyc:   # [win]
     - cwp.py  # [win]
-  # entry_points:
-  #   - menuinst = menuinst.main:main
+  entry_points:
+    - menuinst = menuinst.cli:main
 
 requirements:
   build:
@@ -50,6 +50,7 @@ test:
     - menuinst._legacy  # [win]
     - menuinst.platforms.win_utils.winshortcut  # [win]
   commands:
+    - menuinst --help
     - SP_DIR="$(python -c 'import site; print(site.getsitepackages()[0])')"  # [osx]
     - test -f "${SP_DIR}/menuinst/data/appkit_launcher_arm64"    # [osx]
     - test -f "${SP_DIR}/menuinst/data/appkit_launcher_x86_64"   # [osx]
