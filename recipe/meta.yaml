@@ -1,4 +1,4 @@
-{% set version = "2.4.1" %}
+{% set version = "2.4.2" %}
 
 package:
   name: menuinst
@@ -6,7 +6,7 @@ package:
 
 source:
   url: https://github.com/conda/menuinst/archive/{{ version }}.tar.gz
-  sha256: dc656f0f5a85d7e282a869e0e771e7fdab112a54ce95aabe78849dc90fec0f83
+  sha256: 66d5be6bd84b1f7629b5318c1364940f03c7a1058981c47d4268f107ac04ff56
 
 build:
   number: 0
