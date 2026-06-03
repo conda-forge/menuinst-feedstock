@@ -10,8 +10,8 @@ source:
   sha256: 66d5be6bd84b1f7629b5318c1364940f03c7a1058981c47d4268f107ac04ff56
 
 build:
-  number: 1
-  skip: true  # [py<39]
+  number: 2
+  skip: true  # [py!=310 or (not win)]
   script:
     # Apparently these files make the post-build linkage analysis crash
     # and we should not need them on Windows
