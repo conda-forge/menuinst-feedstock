@@ -43,6 +43,13 @@ jobs:
         store_build_artifacts: true
         tools_install_dir: D:\Miniforge
         SHORT_CONFIG: win_64_python3.14.____cp314
+      win_arm64_:
+        CONFIG: win_arm64_
+        UPLOAD_PACKAGES: 'True'
+        build_workspace_dir: C:\\bld\\
+        store_build_artifacts: true
+        tools_install_dir: C:\Miniforge
+        SHORT_CONFIG: win_arm64_
   timeoutInMinutes: 360
   variables:
     UPLOAD_TEMP: D:\\tmp
