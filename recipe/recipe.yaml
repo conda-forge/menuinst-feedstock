@@ -1,0 +1,99 @@
+schema_version: 1
+
+context:
+  version: "2.5.0"
+
+package:
+  name: menuinst
+  version: ${{ version }}
+
+source:
+  url: https://github.com/conda/menuinst/archive/${{ version }}.tar.gz
+  sha256: 0c53dd1b692bca901d674a1c2393fa69d22a6463091c51433103a14232cb5e30
+
+build:
+  number: 0
+  script:
+    env:
+      SETUPTOOLS_SCM_PRETEND_VERSION: ${{ version }}
+    content:
+      - if: win
+        then:
+          # Apparently these files make the post-build linkage analysis crash
+          # and we should not need them on Windows
+          - del /q "${{ SRC_DIR }}\\menuinst\\data\\osx_launcher_*"
+          - del /q "${{ SRC_DIR }}\\menuinst\\data\\appkit_launcher_*" 
+      - if: linux
+        then:
+          # Delete in Linux too because we don't need them there
+          - rm -f "${{ SRC_DIR }}/menuinst/data/osx_launcher_*"
+          - rm -f "${{ SRC_DIR }}/menuinst/data/appkit_launcher_*" 
+      - ${{ PYTHON }} -m pip install . -vv
+      - if: win
+        # menuinst v1 expects cwp.py in PREFIX; backwards compat fix
+        then: copy "%SP_DIR%\\menuinst\\_legacy\cwp.py" "%PREFIX%\\"
+  python:
+    entry_points:
+      - menuinst = menuinst.cli:main
+    skip_pyc_compilation:
+      - if: win
+        then: cwp.py
+
+requirements:
+  build:
+    - if: build_platform != target_platform
+      then:
+        - python
+        - cross-python_${{ target_platform }}
+    - if: win
+      then:
+        - ${{ stdlib("c") }}
+        - ${{ compiler('c') }}
+        - ${{ compiler('cxx') }}
+  host:
+    - python
+    - pip
+    - setuptools
+    - setuptools_scm
+  run:
+    - python
+    - if: match(python, "<3.11")
+      then: tomli
+    - tomli-w
+
+tests:
+  - python:
+      imports:
+        - menuinst
+        - menuinst.api
+        - if: win
+          then:
+            - menuinst._legacy
+            - menuinst.platforms.win_utils.winshortcut
+      pip_check: false
+  - script:
+      - menuinst --help
+      - if: osx
+        then:
+          - SP_DIR="$(python -c 'import site; print(site.getsitepackages()[0])')"
+          - test -f "${SP_DIR}/menuinst/data/appkit_launcher_arm64"
+          - test -f "${SP_DIR}/menuinst/data/appkit_launcher_x86_64"
+          - test -f "${SP_DIR}/menuinst/data/osx_launcher_arm64"
+          - test -f "${SP_DIR}/menuinst/data/osx_launcher_x86_64"
+
+about:
+  license: BSD-3-Clause AND MIT
+  license_file:
+    - LICENSE.txt
+    - menuinst/_vendor/apipkg/LICENSE
+  summary: cross platform install of menu items
+  homepage: https://github.com/conda/menuinst/
+  documentation: https://conda.github.io/menuinst/
+
+extra:
+  recipe-maintainers:
+    - goanpeca
+    - jakirkham
+    - carlodri
+    - isuruf
+    - jaimergp
