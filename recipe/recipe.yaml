@@ -22,12 +22,12 @@ build:
           # Apparently these files make the post-build linkage analysis crash
           # and we should not need them on Windows
           - del /q "${{ SRC_DIR }}\\menuinst\\data\\osx_launcher_*"
-          - del /q "${{ SRC_DIR }}\\menuinst\\data\\appkit_launcher_*" 
+          - del /q "${{ SRC_DIR }}\\menuinst\\data\\appkit_launcher_*"
       - if: linux
         then:
           # Delete in Linux too because we don't need them there
           - rm -f "${{ SRC_DIR }}/menuinst/data/osx_launcher_*"
-          - rm -f "${{ SRC_DIR }}/menuinst/data/appkit_launcher_*" 
+          - rm -f "${{ SRC_DIR }}/menuinst/data/appkit_launcher_*"
       - ${{ PYTHON }} -m pip install . -vv
       - if: win
         # menuinst v1 expects cwp.py in PREFIX; backwards compat fix
