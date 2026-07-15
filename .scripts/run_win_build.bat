@@ -76,7 +76,10 @@ call :end_group
 
 :: Build the recipe
 echo Building recipe
-rattler-build.exe build --recipe "recipe" -m .ci_support\%CONFIG%.yaml %EXTRA_CB_OPTIONS% --target-platform %HOST_PLATFORM%
+if [%CONFIG%] == [win_arm64_] (
+    set "build_platform_args=--build-platform win-arm64"
+)
+rattler-build.exe build --recipe "recipe" -m .ci_support\%CONFIG%.yaml %EXTRA_CB_OPTIONS% --target-platform %HOST_PLATFORM% %build_platform_args%
 if !errorlevel! neq 0 exit /b !errorlevel!
 
 call :start_group "Inspecting artifacts"
