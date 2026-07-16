@@ -12,6 +12,8 @@
 
 setlocal enableextensions enabledelayedexpansion
 
+@echo ON
+
 FOR %%A IN ("%~dp0.") DO SET "REPO_ROOT=%%~dpA"
 if "%MINIFORGE_HOME%"=="" set "MINIFORGE_HOME=%USERPROFILE%\Miniforge3"
 :: Remove trailing backslash, if present
