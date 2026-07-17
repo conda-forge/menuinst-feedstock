@@ -30,6 +30,8 @@ if not exist "%MICROMAMBA_TMPDIR%" mkdir "%MICROMAMBA_TMPDIR%"
 powershell -ExecutionPolicy Bypass -Command "(New-Object Net.WebClient).DownloadFile('%MICROMAMBA_URL%', '%MICROMAMBA_EXE%')"
 if !errorlevel! neq 0 exit /b !errorlevel!
 
+where conda.exe
+
 echo Creating environment
 call "%MICROMAMBA_EXE%" create --yes --root-prefix "%MAMBA_ROOT_PREFIX%" --prefix "%MINIFORGE_HOME%" ^
     --channel conda-forge ^
@@ -40,6 +42,8 @@ del /S /Q "%MAMBA_ROOT_PREFIX%" >nul
 del /S /Q "%MICROMAMBA_TMPDIR%" >nul
 call :end_group
 
+where conda.exe
+
 call :start_group "Configuring conda"
 
 :: Activate the base conda environment
@@ -49,6 +53,9 @@ call "%MINIFORGE_HOME%\Scripts\activate.bat"
 set "CONDA_SOLVER=libmamba"
 if !errorlevel! neq 0 exit /b !errorlevel!
 set "CONDA_LIBMAMBA_SOLVER_NO_CHANNELS_FROM_INSTALLED=1"
+
+where conda.exe
+conda.exe info
 
 :: Set basic configuration
 echo Setting up configuration
