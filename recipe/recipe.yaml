@@ -12,7 +12,8 @@ source:
   sha256: 079ea48b73530907881526240d0bda1cc012659baee344a61b62090d52465109
 
 build:
-  number: 0
+  skip: not (win and arm64)
+  number: 2
   dynamic_linking:
     # The launcher binaries under menuinst/data/ are standalone .app templates that
     # get copied verbatim into the shortcuts menuinst creates; they are not linked
@@ -84,7 +85,6 @@ tests:
       - menuinst --help
       - if: osx
         then:
-          - SP_DIR="$(python -c 'import site; print(site.getsitepackages()[0])')"
           - test -f "${SP_DIR}/menuinst/data/appkit_launcher_arm64"
           - test -f "${SP_DIR}/menuinst/data/appkit_launcher_x86_64"
           - test -f "${SP_DIR}/menuinst/data/osx_launcher_arm64"
