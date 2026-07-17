@@ -1,7 +1,7 @@
 schema_version: 1
 
 context:
-  version: "2.5.0"
+  version: "2.5.2"
 
 package:
   name: menuinst
@@ -9,11 +9,20 @@ package:
 
 source:
   url: https://github.com/conda/menuinst/archive/${{ version }}.tar.gz
-  sha256: 0c53dd1b692bca901d674a1c2393fa69d22a6463091c51433103a14232cb5e30
+  sha256: 079ea48b73530907881526240d0bda1cc012659baee344a61b62090d52465109
 
 build:
-  number: 1
   skip: not (win and arm64)
+  number: 2
+  dynamic_linking:
+    # The launcher binaries under menuinst/data/ are standalone .app templates that
+    # get copied verbatim into the shortcuts menuinst creates; they are not linked
+    # into this environment and must not be relocated. Relocation strips the
+    # /usr/lib/swift RPATH from the Swift appkit_launcher, which then fails to load
+    # libswiftCore on Intel macOS (arm64 is unaffected because dyld resolves the OS
+    # Swift runtime from the shared cache regardless). menuinst is pure Python with
+    # no other binaries, so disabling relocation is safe. See conda/menuinst#507.
+    binary_relocation: false
   script:
     env:
       SETUPTOOLS_SCM_PRETEND_VERSION: ${{ version }}
