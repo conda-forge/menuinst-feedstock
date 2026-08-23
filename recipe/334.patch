@@ -2028,7 +2028,11 @@ index 394f976..f33d53a 100644
  
      def _write_desktop_file(self):
          if self.location.exists():
-@@ -281,6 +300,15 @@ class LinuxMenuItem(MenuItem):
+@@ -278,9 +297,18 @@ class LinuxMenuItem(MenuItem):
+         for key in menuitem_defaults["platforms"]["linux"]:
+-            if key in (*menuitem_defaults, "glob_patterns"):
++            if key in (*menuitem_defaults, "glob_patterns", "run_in_bash"):
+                 continue
              value = self.render_key(key)
              if value is None:
                  continue
