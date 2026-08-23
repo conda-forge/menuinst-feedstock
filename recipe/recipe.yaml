@@ -24,12 +24,13 @@ source:
     - schemaless-documents.patch
 
 build:
-  number: 204
+  number: 205
   noarch: ${{ "python" if not win }}
   skip:
     # The noarch package only needs to be built once; Windows needs a real
     # compiled build for menuinst.platforms.win_utils.winshortcut.
     - not win and build_platform != "linux-64"
+    - win and not (match(python, "==3.12") or match(python, "==3.14"))
   script:
     env:
       SETUPTOOLS_SCM_PRETEND_VERSION: ${{ version }}
