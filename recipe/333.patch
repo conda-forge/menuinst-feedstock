@@ -1,0 +1,88 @@
+diff --git a/menuinst/platforms/base.py b/menuinst/platforms/base.py
+index 851a75d..9fee2d8 100644
+--- a/menuinst/platforms/base.py
++++ b/menuinst/platforms/base.py
+@@ -53,17 +53,26 @@ class Menu:
+         raise NotImplementedError
+ 
+     def render(self, value: Any, slug: bool = False, extra: dict | None = None) -> Any:
+-        if not hasattr(value, "replace"):
+-            return value
++        is_list = isinstance(value, (list, tuple))
++        if not is_list:
++            value = [value]
+         if extra:
+             placeholders = {**self.placeholders, **extra}
+         else:
+             placeholders = self.placeholders
+-        for placeholder, replacement in placeholders.items():
+-            value = value.replace("{{ " + placeholder + " }}", replacement)
+-        if slug:
+-            value = slugify(value)
+-        return value
++
++        final_values = []
++        for v in value:
++            if hasattr(v, "replace"):
++                for placeholder, replacement in placeholders.items():
++                    v = v.replace("{{ " + placeholder + " }}", replacement)
++                if slug:
++                    v = slugify(v)
++            final_values.append(v)
++        if not is_list:
++            return final_values[0]
++        else:
++            return final_values
+ 
+     def _get_distribution_name(self) -> str:
+         """
+diff --git a/news/333-render-lists b/news/333-render-lists
+new file mode 100644
+index 0000000..4b344dd
+--- /dev/null
++++ b/news/333-render-lists
+@@ -0,0 +1,20 @@
++### Enhancements
++
++* <news item>
++
++### Bug fixes
++
++* `Menu.render` now expands placeholders in lists and tuples of strings
++  instead of returning them unchanged. (#333)
++
++### Deprecations
++
++* <news item>
++
++### Docs
++
++* <news item>
++
++### Other
++
++* <news item>
+diff --git a/tests/test_api.py b/tests/test_api.py
+index e7e58aa..70f7c37 100644
+--- a/tests/test_api.py
++++ b/tests/test_api.py
+@@ -629,3 +629,19 @@ def test_malformed_json_skipped_in_process_all(tmp_path, caplog):
+ @pytest.mark.skipif(PLATFORM != "linux", reason="Only relevant to .desktop files")
+ def test_desktop_files_escaping(delete_files):
+     check_output_from_shortcut(delete_files, "pwnd.json", expected_output="legit")
++
++
++def test_render_expands_placeholders_in_lists(tmp_path):
++    """`Menu.render` expands placeholders in lists/tuples of strings, not just scalars."""
++    menu = Menu("Test", prefix=str(tmp_path), base_prefix=str(tmp_path))
++    extra = {"FOO": "bar"}
++
++    # Scalar strings still work as before.
++    assert menu.render("{{ FOO }}", extra=extra) == "bar"
++
++    # Lists and tuples have placeholders expanded element-wise.
++    assert menu.render(["{{ FOO }}", "{{ FOO }}/baz"], extra=extra) == ["bar", "bar/baz"]
++    assert menu.render(("{{ FOO }}",), extra=extra) == ["bar"]
++
++    # Non-string items inside a list are returned untouched.
++    assert menu.render([1, "{{ FOO }}", None], extra=extra) == [1, "bar", None]

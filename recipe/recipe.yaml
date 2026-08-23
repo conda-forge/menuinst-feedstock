@@ -10,9 +10,18 @@ package:
 source:
   url: https://github.com/conda/menuinst/archive/${{ version }}.tar.gz
   sha256: 079ea48b73530907881526240d0bda1cc012659baee344a61b62090d52465109
+  patches:
+    # https://github.com/conda/menuinst/pull/333
+    - 333.patch
+    # https://github.com/conda/menuinst/pull/334
+    - 334.patch
+    # https://github.com/conda/menuinst/pull/535
+    - 535.patch
+    # https://github.com/conda/menuinst/pull/536
+    - 536.patch
 
 build:
-  number: 2
+  number: 102
   noarch: ${{ "python" if not win }}
   skip:
     # The noarch package only needs to be built once; Windows needs a real
