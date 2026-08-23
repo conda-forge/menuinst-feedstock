@@ -1,0 +1,156 @@
+diff --git a/menuinst/_schema.py b/menuinst/_schema.py
+index 3a34feb..68acbc0 100644
+--- a/menuinst/_schema.py
++++ b/menuinst/_schema.py
+@@ -831,11 +831,22 @@ def dump_default_to_json(write=True):
+ 
+ 
+ def validate(metadata_or_path):
++    """
++    Validate a menu document against the schema.
++
++    Documents that do not carry a `$schema` key are not validated, and None is
++    returned. This mirrors how conda-build treats such documents, and lets a
++    document opt out of validation when it targets a schema revision that is
++    not published at schemas.conda.org yet.
++    """
+     if isinstance(metadata_or_path, (str, Path)):
+         with open(metadata_or_path) as f:
+             metadata = json.load(f)
+     else:
+         metadata = metadata_or_path
++    if "$schema" not in metadata:
++        log.info("No `$schema` key found; skipping validation.")
++        return None
+     return MenuInstSchema(**metadata)
+ 
+ 
+diff --git a/menuinst/api.py b/menuinst/api.py
+index 211d1cc..6131473 100644
+--- a/menuinst/api.py
++++ b/menuinst/api.py
+@@ -253,6 +253,23 @@ def _process_all(
+ _api_remove = remove  # alias to prevent shadowing in the function below
+ 
+ 
++def _is_legacy_metadata(metadata: dict) -> bool:
++    """
++    Whether a menu document uses the menuinst v1.x format.
++
++    `$schema` cannot be the only discriminator: dropping it is the documented
++    way to opt a document out of conda-build's schema validation, and a v2
++    document that does so must still be installed as v2. Every v2 menu item
++    carries a `platforms` key, which no v1 item has, so fall back to that.
++    """
++    if "$schema" in metadata or "$id" in metadata:
++        return False
++    return not any(
++        isinstance(item, dict) and "platforms" in item
++        for item in metadata.get("menu_items", [])
++    )
++
++
+ def _install_adapter(path: str, remove: bool = False, prefix: str = DEFAULT_PREFIX, **kwargs):
+     """
+     This function is only here as a legacy adapter for menuinst v1.x.
+@@ -263,7 +280,7 @@ def _install_adapter(path: str, remove: bool = False, prefix: str = DEFAULT_PREF
+     json_path = os.path.join(prefix, path)
+     with open(json_path) as f:
+         metadata = json.load(f)
+-    if "$schema" not in metadata and "$id" not in metadata:  # old style JSON
++    if _is_legacy_metadata(metadata):  # old style JSON
+         from ._legacy import install as _legacy_install
+ 
+         if os.name == "nt":
+diff --git a/news/schemaless-documents b/news/schemaless-documents
+new file mode 100644
+index 0000000..f9fa4b3
+--- /dev/null
++++ b/news/schemaless-documents
+@@ -0,0 +1,24 @@
++### Enhancements
++
++* Documents without a `$schema` key are no longer validated by
++  `menuinst._schema.validate`, which now returns `None` for them. This mirrors
++  conda-build's behaviour and lets a document opt out of validation when it
++  targets an unpublished schema revision.
++
++### Bug fixes
++
++* A menuinst v2 document that omits `$schema` is no longer misrouted to the
++  v1 installer. Version dispatch now falls back to the presence of the v2-only
++  `platforms` key instead of relying on `$schema`/`$id` alone.
++
++### Deprecations
++
++* <news item>
++
++### Docs
++
++* <news item>
++
++### Other
++
++* <news item>
+diff --git a/tests/test_api.py b/tests/test_api.py
+index 0eeec5f..22476e8 100644
+--- a/tests/test_api.py
++++ b/tests/test_api.py
+@@ -16,6 +16,7 @@ from xml.etree import ElementTree
+ import pytest
+ from conftest import DATA, PLATFORM
+ 
++from menuinst._schema import SCHEMA_URL
+ from menuinst.api import install, remove, remove_all
+ from menuinst.platforms import Menu, MenuItem
+ from menuinst.platforms.linux import LinuxMenu, LinuxMenuItem
+@@ -661,3 +662,49 @@ def test_desktop_entry_icon(tmp_path, monkeypatch):
+     item._write_desktop_file()
+     expected = Path(sys.prefix) / "Menu" / "icon.png"
+     assert f"Icon={expected}" in item.location.read_text().splitlines()
++
++
++def test_validate_skipped_without_schema_key(tmp_path):
++    """A document with no `$schema` key opts out of validation entirely."""
++    from menuinst._schema import validate
++
++    doc = {
++        "menu_name": "Test",
++        "menu_items": [
++            {
++                "name": "Test Item",
++                "description": "d",
++                "command": ["echo", "hi"],
++                # A key no published schema revision knows about.
++                "platforms": {"linux": {"run_in_bash": False}},
++            }
++        ],
++    }
++    assert validate(doc) is None
++
++    path = tmp_path / "menu.json"
++    path.write_text(json.dumps(doc))
++    assert validate(path) is None
++
++    # With the key present, validation still runs.
++    doc_with_schema = dict(doc, **{"$schema": SCHEMA_URL})
++    assert validate(doc_with_schema) is not None
++
++
++def test_schemaless_v2_document_is_not_treated_as_legacy():
++    """Dropping `$schema` must not route a v2 document into the v1 installer."""
++    from menuinst.api import _is_legacy_metadata
++
++    v2 = {
++        "menu_name": "Test",
++        "menu_items": [{"name": "n", "command": ["echo"], "platforms": {"linux": {}}}],
++    }
++    assert not _is_legacy_metadata(v2)
++    assert not _is_legacy_metadata(dict(v2, **{"$schema": SCHEMA_URL}))
++
++    v1 = {
++        "menu_name": "Test",
++        "menu_items": [{"name": "n", "system": "cmd.exe", "scriptarguments": []}],
++    }
++    assert _is_legacy_metadata(v1)
++    assert _is_legacy_metadata({"menu_name": "Test", "menu_items": []})

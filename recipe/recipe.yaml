@@ -10,18 +10,27 @@ package:
 source:
   url: https://github.com/conda/menuinst/archive/${{ version }}.tar.gz
   sha256: 079ea48b73530907881526240d0bda1cc012659baee344a61b62090d52465109
+  patches:
+    # https://github.com/conda/menuinst/pull/333
+    - 333.patch
+    # https://github.com/conda/menuinst/pull/334
+    - 334.patch
+    # https://github.com/conda/menuinst/pull/535
+    - 535.patch
+    # https://github.com/conda/menuinst/pull/536
+    - 536.patch
+    # https://github.com/conda/menuinst/pull/538
+    - 538.patch
+    - schemaless-documents.patch
 
 build:
-  number: 1
-  dynamic_linking:
-    # The launcher binaries under menuinst/data/ are standalone .app templates that
-    # get copied verbatim into the shortcuts menuinst creates; they are not linked
-    # into this environment and must not be relocated. Relocation strips the
-    # /usr/lib/swift RPATH from the Swift appkit_launcher, which then fails to load
-    # libswiftCore on Intel macOS (arm64 is unaffected because dyld resolves the OS
-    # Swift runtime from the shared cache regardless). menuinst is pure Python with
-    # no other binaries, so disabling relocation is safe. See conda/menuinst#507.
-    binary_relocation: false
+  number: 205
+  noarch: ${{ "python" if not win }}
+  skip:
+    # The noarch package only needs to be built once; Windows needs a real
+    # compiled build for menuinst.platforms.win_utils.winshortcut.
+    - not win and build_platform != "linux-64"
+    - win and not (match(python, "==3.12") or match(python, "==3.14"))
   script:
     env:
       SETUPTOOLS_SCM_PRETEND_VERSION: ${{ version }}
@@ -32,11 +41,6 @@ build:
           # and we should not need them on Windows
           - del /q "${{ SRC_DIR }}\\menuinst\\data\\osx_launcher_*"
           - del /q "${{ SRC_DIR }}\\menuinst\\data\\appkit_launcher_*"
-      - if: linux
-        then:
-          # Delete in Linux too because we don't need them there
-          - rm -f "${{ SRC_DIR }}/menuinst/data/osx_launcher_*"
-          - rm -f "${{ SRC_DIR }}/menuinst/data/appkit_launcher_*"
       - ${{ PYTHON }} -m pip install . -vv
       - if: win
         # menuinst v1 expects cwp.py in PREFIX; backwards compat fix
@@ -50,44 +54,63 @@ build:
 
 requirements:
   build:
-    - if: build_platform != target_platform
-      then:
-        - python
-        - cross-python_${{ target_platform }}
     - if: win
       then:
+        - if: build_platform != target_platform
+          then:
+            - python
+            - cross-python_${{ target_platform }}
         - ${{ stdlib("c") }}
         - ${{ compiler('c') }}
         - ${{ compiler('cxx') }}
   host:
-    - python
+    - if: win
+      then: python
+      else: python ${{ python_min }}.*
     - pip
     - setuptools
     - setuptools_scm
   run:
-    - python
-    - if: match(python, "<3.11")
-      then: tomli
+    - if: win
+      then:
+        - python
+        - if: match(python, "<3.11")
+          then: tomli
+      else:
+        # noarch has no python variant to match against, so tomli is always
+        # declared; it is unused on 3.11+, where tomllib is in the stdlib.
+        - python >=${{ python_min }}
+        - tomli
     - tomli-w
 
 tests:
-  - python:
-      imports:
-        - menuinst
-        - menuinst.api
-        - if: win
-          then:
+  - if: win
+    then:
+      - python:
+          imports:
+            - menuinst
+            - menuinst.api
             - menuinst._legacy
             - menuinst.platforms.win_utils.winshortcut
-      pip_check: false
-  - script:
-      - menuinst --help
-      - if: osx
-        then:
+          pip_check: false
+      - script:
+          - menuinst --help
+    else:
+      - python:
+          imports:
+            - menuinst
+            - menuinst.api
+          python_version: ${{ python_min }}.*
+          pip_check: false
+      - script:
+          - menuinst --help
           - test -f "${SP_DIR}/menuinst/data/appkit_launcher_arm64"
           - test -f "${SP_DIR}/menuinst/data/appkit_launcher_x86_64"
           - test -f "${SP_DIR}/menuinst/data/osx_launcher_arm64"
           - test -f "${SP_DIR}/menuinst/data/osx_launcher_x86_64"
+        requirements:
+          run:
+            - python ${{ python_min }}.*
 
 about:
   license: BSD-3-Clause AND MIT

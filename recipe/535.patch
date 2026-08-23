@@ -1,0 +1,71 @@
+diff --git a/menuinst/platforms/linux.py b/menuinst/platforms/linux.py
+index f33d53a..9391935 100644
+--- a/menuinst/platforms/linux.py
++++ b/menuinst/platforms/linux.py
+@@ -283,7 +283,7 @@ class LinuxMenuItem(MenuItem):
+ 
+         icon = self.render_key("icon")
+         if icon:
+-            lines.append("Icon={_escape_desktop_string(self.render_key('icon')}")
++            lines.append(f"Icon={_escape_desktop_string(self.render_key('icon'))}")
+ 
+         description = self.render_key("description")
+         if description:
+diff --git a/news/535-fix-desktop-entry-icon b/news/535-fix-desktop-entry-icon
+new file mode 100644
+index 0000000..f57f6da
+--- /dev/null
++++ b/news/535-fix-desktop-entry-icon
+@@ -0,0 +1,21 @@
++### Enhancements
++
++* <news item>
++
++### Bug fixes
++
++* Write the rendered icon path to the `Icon=` line of Linux `.desktop` files.
++  A missing f-string prefix caused the literal source expression to be written
++  instead. (#535)
++
++### Deprecations
++
++* <news item>
++
++### Docs
++
++* <news item>
++
++### Other
++
++* <news item>
+diff --git a/tests/test_api.py b/tests/test_api.py
+index 70f7c37..0eeec5f 100644
+--- a/tests/test_api.py
++++ b/tests/test_api.py
+@@ -18,6 +18,7 @@ from conftest import DATA, PLATFORM
+ 
+ from menuinst.api import install, remove, remove_all
+ from menuinst.platforms import Menu, MenuItem
++from menuinst.platforms.linux import LinuxMenu, LinuxMenuItem
+ from menuinst.platforms.osx import _lsregister
+ from menuinst.utils import DEFAULT_PREFIX, logged_run, slugify, user_is_admin
+ 
+@@ -645,3 +646,18 @@ def test_render_expands_placeholders_in_lists(tmp_path):
+ 
+     # Non-string items inside a list are returned untouched.
+     assert menu.render([1, "{{ FOO }}", None], extra=extra) == [1, "bar", None]
++
++
++def test_desktop_entry_icon(tmp_path, monkeypatch):
++    """The Icon= line must hold the rendered icon path, not the f-string source text."""
++    monkeypatch.setenv("XDG_CONFIG_HOME", str(tmp_path / "config"))
++    monkeypatch.setenv("XDG_DATA_HOME", str(tmp_path / "data"))
++    menu = LinuxMenu("Test Menu", prefix=sys.prefix, base_prefix=sys.prefix)
++    menu._ensure_directories_exist()
++    item = LinuxMenuItem(
++        menu,
++        {"name": "Test Item", "command": ["echo", "hi"], "icon": "{{ MENU_DIR }}/icon.png"},
++    )
++    item._write_desktop_file()
++    expected = Path(sys.prefix) / "Menu" / "icon.png"
++    assert f"Icon={expected}" in item.location.read_text().splitlines()
