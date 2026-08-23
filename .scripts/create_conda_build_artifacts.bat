@@ -44,7 +44,11 @@ if defined BLD_ARTIFACT_PREFIX (
 
     set "BLD_ARTIFACT_PATH=%ARTIFACT_STAGING_DIR%\%FEEDSTOCK_NAME%_%BLD_ARTIFACT_PREFIX%_%ARCHIVE_UNIQUE_ID%.zip"
     7z a "!BLD_ARTIFACT_PATH!" "%CONDA_BLD_PATH%" -xr^^!.git/ -xr^^!_*_env*/ -xr^^!*_cache/ -bb
-    if errorlevel 1 exit 1
+    rem 7-Zip exits 1 for non-fatal warnings; rattler-build deletes its
+    rem .work.pending-rm-* trees while the archive is being written, and failing
+    rem on that loses the artifact even though every package made it in.
+    rem 2 and above are the genuine failures.
+    if errorlevel 2 exit 1
     echo BLD_ARTIFACT_PATH: !BLD_ARTIFACT_PATH!
 
     if "%CI%" == "azure" (
