@@ -19,9 +19,10 @@ source:
     - 535.patch
     # https://github.com/conda/menuinst/pull/536
     - 536.patch
+    - schemaless-documents.patch
 
 build:
-  number: 102
+  number: 203
   noarch: ${{ "python" if not win }}
   skip:
     # The noarch package only needs to be built once; Windows needs a real
