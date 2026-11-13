@@ -190,7 +190,6 @@ Feedstock Maintainers
 =====================
 
 * [@carlodri](https://github.com/carlodri/)
-* [@goanpeca](https://github.com/goanpeca/)
 * [@isuruf](https://github.com/isuruf/)
 * [@jaimergp](https://github.com/jaimergp/)
 * [@jakirkham](https://github.com/jakirkham/)
